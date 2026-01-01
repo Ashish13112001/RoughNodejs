@@ -11,8 +11,12 @@ fs.writeFileSync('./txt/start.txt', textOutput);
 
 ///////////////////////////////////
 
-//Create server
+// ye top level code hota h jo 1 baar execute hota h jab server start hota h to agar m data synchronously bhi fetch karta hu to koi problem nahi hogi
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+const dataObj = JSON.parse(data);
 
+//Create server
+// ye vo data h jo baar-baar hit hoga jab bhi server s request aaegi
 const server = http.createServer((req, res) => {
     // console.log('--- ', req);
     // console.log('=== ', req.url)
@@ -21,7 +25,10 @@ const server = http.createServer((req, res) => {
     if(pathName === '/' || pathName === '/overview'){
         res.end('This is Overview');
     }else if(pathName === '/product'){
-        res.end('This is Product');
+        res.end('This is Product'); // end -- used to send back a string
+    }else if (pathName === '/api'){
+        res.writeHead(200, {'content-type': 'application/json'});
+        res.end(data);        
     }else{
         res.writeHead(404, {
             'content-type': 'text/html',
