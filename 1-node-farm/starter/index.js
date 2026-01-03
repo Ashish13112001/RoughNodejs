@@ -37,23 +37,25 @@ const replaceTemplate = (temp, product) => {
 };
 // ye vo data h jo baar-baar hit hoga jab bhi server s request aaegi
 const server = http.createServer((req, res) => {
-  // console.log('--- ', req);
-  // console.log('=== ', req.url)
-  const pathName = req.url;
+  
+
+  const { query, pathname } = url.parse(req.url, true); 
 
   //Overview
-  if (pathName === "/" || pathName === "/overview") {
+  if (pathname === "/" || pathname === "/overview") {
     res.writeHead(200, { "content-type": "text/html" });
 
     const cardHtml = dataObj
       .map((el) => replaceTemplate(tempCard, el))
       .join("");
-      console.log('-pp=-', cardHtml)
     const output = tempOverview.replace(/{%PRODUCT_CARD%}/g, cardHtml);
     res.end(output);
-  } else if (pathName === "/product") {
-    res.end("This is Product"); // end -- used to send back a string
-  } else if (pathName === "/api") {
+  } else if (pathname === "/product") {
+    res.writeHead(200, { "content-type": "text/html" });
+    const product = dataObj[query.id];
+    const output = replaceTemplate(tempProduct, product);
+    res.end(output); // end -- used to send back a string
+  } else if (pathname === "/api") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(data);
   } else {
