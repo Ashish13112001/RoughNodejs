@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const http = require("node:http");
 const url = require("node:url");
+const replaceTemplate = require('./modules/replaceTemplate');
 
 // ye top level code hota h jo 1 baar execute hota h jab server start hota h to agar m data synchronously bhi fetch karta hu to koi problem nahi hogi
 const tempOverview = fs.readFileSync(
@@ -21,20 +22,7 @@ const dataObj = JSON.parse(data);
 
 //Create server
 
-const replaceTemplate = (temp, product) => {
-  let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%DESCRIPTION%}/g, product.description);
-  output = output.replace(/{%ID%}/g, product.id);
 
-  if (!product.organic)
-    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-  return output;
-};
 // ye vo data h jo baar-baar hit hoga jab bhi server s request aaegi
 const server = http.createServer((req, res) => {
   
