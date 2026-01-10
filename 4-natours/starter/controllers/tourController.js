@@ -22,6 +22,13 @@ exports.getTour = (req, res) => {
   const id = +req.params.id;
   const tour = tours.find((el) => el.id === id);
 
+  if (!tour) {
+    res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
@@ -53,6 +60,13 @@ exports.createTour = (req, res) => {
 
 //we didn't actually update any data (It just demo how patch work)
 exports.updateTour = (req, res) => {
+  if (+req.params.id > tours.length) {
+    res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
@@ -63,6 +77,13 @@ exports.updateTour = (req, res) => {
 
 //we didn't actually delete any data (It just demo how delete work)
 exports.deleteTour = (req, res) => {
+  if (+req.params.id > tours.length) {
+    res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
   res.status(204).json({
     status: 'success',
     data: null,
