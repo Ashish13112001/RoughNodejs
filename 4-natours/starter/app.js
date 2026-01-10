@@ -17,7 +17,7 @@ app.use((req, res, next) => {
 });
 
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
+  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
 const getAllTour = (req, res) => {
@@ -68,7 +68,7 @@ const createTour = (req, res) => {
           tours: newTour,
         },
       });
-    },
+    }
   );
 };
 
@@ -142,15 +142,18 @@ const deleteUser = (req, res) => {
 // app.delete('/api/v1/tours/:id', deleteTour);
 
 //This is better way to define route
-app.route('/api/v1/tours').get(getAllTour).post(createTour);
-app
-  .route('/api/v1/tours/:id')
-  .get(getTour)
-  .patch(updateTour)
-  .delete(deleteTour);
 
-app.route('/api/v1/users').get(getAllUsers).post(createUser);
-app.route('/api/v1/users:id').get(getUser).patch(updateUser).delete(deleteUser);
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+tourRouter.route('/').get(getAllTour).post(createTour);
+tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
+
+userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 const port = 3000;
 app.listen(port, () => {
