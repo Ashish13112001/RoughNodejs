@@ -5,13 +5,11 @@ const tourController = require('../controllers/tourController');
 
 const router = express.Router();
 
-//This middleware (param middleware) only run when "/api/v1/tours" hit with id => "/api/v1/tours/4"
-router.param('id', tourController.checkID);
 
 router
   .route('/')
   .get(tourController.getAllTour)
-  .post(tourController.checkBody, tourController.createTour);
+  .post( tourController.createTour);
 router
   .route('/:id')
   .get(tourController.getTour)
