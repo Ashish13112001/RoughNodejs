@@ -5,17 +5,26 @@ exports.getAllTour = async (req, res) => {
     // console.log('-- --- ', req.query, queryObj);
 
     //*****BUILD QUERY*****
-    //Filtering
+    // 1A) Filtering
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    //Advance Filtering -- Url: 127.0.0.1:3000/api/v1/tours?duration[gte]=5&difficulty=easy
+    // 1B) Advance Filtering -- Url: 127.0.0.1:3000/api/v1/tours?duration[gte]=5&difficulty=easy
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
     console.log('====== ', JSON.parse(queryStr));
 
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+
+    // 2) Sorting -- Url: 127.0.0.1:3000/api/v1/tours?sort=price (for descending use -price)
+    //127.0.0.1:3000/api/v1/tours?sort=price,ratingsAverage (replace ',' with ' ')
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
 
     //*****EXECUTE QUERY*****
     const tours = await query;
