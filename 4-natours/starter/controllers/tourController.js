@@ -1,4 +1,5 @@
 const Tour = require('./../models/tourModel');
+const APIFeature = require('./../utils/apiFeatures');
 
 exports.aliasTopTour = (req, res, next) => {
   req.query.limit = '5';
@@ -9,54 +10,13 @@ exports.aliasTopTour = (req, res, next) => {
 
 exports.getAllTour = async (req, res) => {
   try {
-    // console.log('-- --- ', req.query, queryObj);
-
-    //*****BUILD QUERY*****
-    // 1A) Filtering
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
-
-    // 1B) Advance Filtering -- Url: 127.0.0.1:3000/api/v1/tours?duration[gte]=5&difficulty=easy
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    console.log('====== ', JSON.parse(queryStr));
-
-    let query = Tour.find(JSON.parse(queryStr));
-
-    // 2) Sorting -- Url: 127.0.0.1:3000/api/v1/tours?sort=price (for descending use -price)
-    //127.0.0.1:3000/api/v1/tours?sort=price,ratingsAverage (replace ',' with ' ')
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    // 3) Field Limiting
-    // 127.0.0.1:3000/api/v1/tours?fields=name,price
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // 4) Pagination
-    // 127.0.0.1:3000/api/v1/tours?page=2&limit=3
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 5;
-    const skip = (page - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('This page does not exist!');
-    }
-
     //*****EXECUTE QUERY*****
-    const tours = await query;
+    const features = new APIFeature(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const tours = await features.query;
 
     //*****SEND RESPONSE*****
     res.status(200).json({
