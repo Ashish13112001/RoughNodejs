@@ -2,14 +2,23 @@ const Tour = require('./../models/tourModel');
 
 exports.getAllTour = async (req, res) => {
   try {
-    //BUILD QUERY
+    // console.log('-- --- ', req.query, queryObj);
+
+    //*****BUILD QUERY*****
+    //Filtering
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    // console.log('-- --- ', req.query, queryObj);
+    //Advance Filtering -- Url: 127.0.0.1:3000/api/v1/tours?duration[gte]=5&difficulty=easy
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    console.log('====== ', JSON.parse(queryStr));
 
-    const query = Tour.find(queryObj); // This find method return a query (ask to chatgpt and learn more)
+    const query = Tour.find(JSON.parse(queryStr));
+
+    //*****EXECUTE QUERY*****
+    const tours = await query;
 
     /* This is alternate way for query
     const query = Tour.find()
@@ -19,10 +28,7 @@ exports.getAllTour = async (req, res) => {
       .equals('easy');
     */
 
-    //EXECUTE QUERY
-    const tours = await query;
-
-    //SEND RESPONSE
+    //*****SEND RESPONSE*****
     res.status(200).json({
       status: 'success',
       result: tours.length,
