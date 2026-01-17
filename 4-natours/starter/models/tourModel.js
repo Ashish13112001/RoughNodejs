@@ -49,8 +49,9 @@ const tourSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+    select: false, // response send k time ye include nahi hogi
   },
-  startDates: [Date]
+  startDates: [Date],
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
