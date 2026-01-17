@@ -27,23 +27,30 @@ exports.getAllTour = async (req, res) => {
     }
 
     // 3) Field Limiting
+    // 127.0.0.1:3000/api/v1/tours?fields=name,price
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields); 
-    }else {
+      query = query.select(fields);
+    } else {
       query = query.select('-__v');
+    }
+
+    // 4) Pagination
+    // 127.0.0.1:3000/api/v1/tours?page=2&limit=3
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 5;
+    const skip = (page - 1) * limit;
+
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exist!');
     }
 
     //*****EXECUTE QUERY*****
     const tours = await query;
 
-    /* This is alternate way for query
-    const query = Tour.find()
-      .where('duration')
-      .equals(5)
-      .where('difficulty')
-      .equals('easy');
-    */
 
     //*****SEND RESPONSE*****
     res.status(200).json({
