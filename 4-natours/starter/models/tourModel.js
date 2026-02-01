@@ -55,6 +55,10 @@ const tourSchema = new mongoose.Schema(
       select: false, // response send k time ye include nahi hogi
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -77,6 +81,18 @@ tourSchema.pre('save', function () {
 // tourSchema.post('save', function (doc) {
 //   console.log('😂', doc);
 // });
+
+//QUERY MIDDLEWARE
+// tourSchema.pre('find', function () {
+tourSchema.pre(/^find/, function () {
+  // this regular expression is use all query which start with find
+  this.start = Date.now();
+  this.find({ secretTour: { $ne: true } });
+});
+tourSchema.post(/^find/, function (docs) {
+  console.log(`query took ${Date.now() - this.start} milliseconds`)
+  console.log('-= ', docs);
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 

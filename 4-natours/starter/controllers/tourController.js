@@ -39,7 +39,6 @@ exports.getTour = async (req, res) => {
     const tour = await Tour.findById(req.params.id); //Tour.findOne({ _id: req.params.id})
     res.status(200).json({
       status: 'success',
-      result: tour.length,
       data: {
         tour: tour,
       },
