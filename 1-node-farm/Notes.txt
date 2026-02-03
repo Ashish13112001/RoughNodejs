@@ -1,1 +1,2 @@
 1 -- In terminal write node then enter then press tab 2times --> you will see all the global variable present in the node
+2 -- Read and Write file Synchronously
