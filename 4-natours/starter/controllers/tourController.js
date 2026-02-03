@@ -1,5 +1,6 @@
 const Tour = require('./../models/tourModel');
 const APIFeature = require('./../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
 
 exports.aliasTopTour = (req, res, next) => {
   req.query.limit = '5';
@@ -8,8 +9,7 @@ exports.aliasTopTour = (req, res, next) => {
   next();
 };
 
-exports.getAllTour = async (req, res) => {
-  try {
+exports.getAllTour = catchAsync(async (req, res, next) => {
     //*****EXECUTE QUERY*****
     const features = new APIFeature(Tour.find(), req.query)
       .filter()
@@ -26,16 +26,9 @@ exports.getAllTour = async (req, res) => {
         tour: tours,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+});
 
-exports.getTour = async (req, res) => {
-  try {
+exports.getTour = catchAsync(async (req, res, next) => {
     const tour = await Tour.findById(req.params.id); //Tour.findOne({ _id: req.params.id})
     res.status(200).json({
       status: 'success',
@@ -43,35 +36,26 @@ exports.getTour = async (req, res) => {
         tour: tour,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+});
 
-exports.createTour = async (req, res) => {
-  try {
-    const newTour = await Tour.create(req.body);
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour: newTour,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-      // message: 'Invalid data sent!',
-    });
-  }
-};
+// const catchAsync = (fn) => {
+//   return (req, res, next) => {
+//     fn(req, res, next).catch(next);
+//   }
+// };
+
+exports.createTour = catchAsync(async (req, res, next) => {
+  const newTour = await Tour.create(req.body);
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour: newTour,
+    },
+  });
+});
 
 //we didn't actually update any data (It just demo how patch work)
-exports.updateTour = async (req, res) => {
-  try {
+exports.updateTour = catchAsync(async (req, res, next) => {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true, // because of this validator run again
@@ -83,33 +67,19 @@ exports.updateTour = async (req, res) => {
         tour: tour,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+});
 
 //we didn't actually delete any data (It just demo how delete work)
-exports.deleteTour = async (req, res) => {
-  try {
+exports.deleteTour = catchAsync(async (req, res, next) => {
     const tour = await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: 'success',
       result: tour.length,
       data: null,
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+});
 
-exports.getTourStats = async (req, res) => {
-  try {
+exports.getTourStats = catchAsync(async (req, res) => {
     const stats = await Tour.aggregate([
       {
         $match: { ratingsAverage: { $gte: 4.5 } },
@@ -140,17 +110,10 @@ exports.getTourStats = async (req, res) => {
         stats,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+});
 
 //find the busyest month in a year
-exports.getMonthlyPlan = async (req, res) => {
-  try {
+exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     const year = req.params.year * 1;
     const plan = await Tour.aggregate([
       { $unwind: '$startDates' },
@@ -189,10 +152,4 @@ exports.getMonthlyPlan = async (req, res) => {
         plan,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+});
