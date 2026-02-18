@@ -1,7 +1,11 @@
 const fs = require('node:fs');
 
 const express = require('express');
+/*Another way of accessing callback function
+const {getAllTours, createTour, getTour, updateTour, deleteTour} = require('../controllers/tourController');
+*/
 const tourController = require('../controllers/tourController');
+const authController = require('./../controllers/authController')
 
 const router = express.Router();
 
@@ -14,7 +18,7 @@ router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 router
   .route('/')
-  .get(tourController.getAllTour)
+  .get(authController.protect, tourController.getAllTour)
   .post(tourController.createTour);
 router
   .route('/:id')
